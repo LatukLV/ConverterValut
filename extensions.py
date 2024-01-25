@@ -8,18 +8,18 @@ class APIException(Exception):
 
 class Convertor:
     @staticmethod
-    def get_price(base, sym, amount):
+    def get_price(base, quote, amount):
         try:
             base_key = exchanges[base.lower()]
         except KeyError:
             raise APIException(f"Валюта {base} не найдена!")
 
         try:
-            sym_key = exchanges[sym.lower()]
+            quote_key = exchanges[quote.lower()]
         except KeyError:
-            raise APIException(f"Валюта {sym} не найдена!")
+            raise APIException(f"Валюта {quote} не найдена!")
 
-        if base_key == sym_key:
+        if base_key == quote_key:
             raise APIException(f'Невозможно перевести одинаковые валюты {base}!')
         
         try:
@@ -30,9 +30,9 @@ class Convertor:
         r = requests.get(f"https://api.exchangerate-api.com/v4/latest/{base_key}")
         if r.status_code == 200:
             resp = json.loads(r.content)
-            new_price = resp['rates'][sym_key] * amount
+            new_price = resp['rates'][quote_key] * amount
             new_price = round(new_price, 3)
-            message =  f"Цена {amount} {base} в {sym} : {new_price}"
+            message =  f"Цена {amount} {base} в {quote} : {new_price}"
         else:
             raise APIException('Ошибка при получении данных.')
         return message
